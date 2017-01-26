@@ -1,0 +1,32 @@
+buildscript {
+    dependencies {
+        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.7.0'
+    }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+}
+apply plugin: 'java'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies{
+    compile project(':')    
+    
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+    
+    testCompile('junit:junit:4.12')
+    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
+    
+}
+
+apply plugin: 'javafx-gradle-plugin'
+
+jfx {
+    mainClass = 'jobpostergui.MainApp'
+    vendor = 'Ilyas'
+}

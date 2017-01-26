@@ -1,0 +1,5 @@
+*~
+nbproject/
+.nb-gradle
+/GUI/build/
+build/
