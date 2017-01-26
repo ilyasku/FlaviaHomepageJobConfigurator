@@ -272,7 +272,7 @@ public class JobEditorController {
         }
     }
     
-    
+    @FXML
     private void updateJobHtmlContent() {
         if (currentlySelectedJob == null) return;
         

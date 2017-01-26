@@ -28,5 +28,6 @@ apply plugin: 'javafx-gradle-plugin'
 
 jfx {
     mainClass = 'jobpostergui.MainApp'
+    jfxMainAppJarName = "JobConfiguratorGUI.jar"
     vendor = 'Ilyas'
 }
