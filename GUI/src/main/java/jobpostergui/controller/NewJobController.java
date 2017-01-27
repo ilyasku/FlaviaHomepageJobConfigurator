@@ -14,7 +14,6 @@ import jobpostergui.MainApp;
 public class NewJobController {
 
     private Stage dialogStage;
-    private boolean addClicked = false;
     private MainApp mainApp;
     
     @FXML
@@ -70,15 +69,15 @@ public class NewJobController {
             alert.showAndWait();
         }
         else {
-            System.out.println("file name fine!");
             Job job = createJob();
             job.setVisible(false);
             mainApp.addJob(job);
             mainApp.addJobForTableView(job);
+            mainApp.addToFilesThatNeedToBeSaved(job.getHtmlFileKey());            
             dialogStage.close();
         }
     }
-
+    
     private boolean fileNameUnique() {
         Set<String> fileNames = mainApp.getHtmlFileNames();
         return !fileNames.contains(fileNameField.getText());

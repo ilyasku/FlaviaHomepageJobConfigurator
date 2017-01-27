@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -32,7 +31,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -64,6 +62,8 @@ public class MainApp extends Application {
     private List<String> htmlFilesThatNeedToBeSaved = new ArrayList<>();        
 
     private Label statusLabel;
+    
+    public boolean skipAddingToSaveListSinceDeletionIsHandled = false;
     
     public MainApp(){        
         wrapperAmazonS3 = new WrapperAmazonS3();
@@ -172,13 +172,19 @@ public class MainApp extends Application {
     }
     
     public void addToFilesThatNeedToBeSaved(String htmlFileName) {
+        if (skipAddingToSaveListSinceDeletionIsHandled) return;
         if (!htmlFilesThatNeedToBeSaved.contains(htmlFileName)) {
             htmlFilesThatNeedToBeSaved.add(htmlFileName);
         }
     }
     
+    public void removeFromFilesThatNeedToBeSaved(String htmlFileName){
+        if (htmlFilesThatNeedToBeSaved.contains(htmlFileName)) {
+            htmlFilesThatNeedToBeSaved.remove(htmlFileName);
+        }
+    }
+    
     public void writeJobsToAmazonS3(){
-        System.out.println("writeJobs called!");
         if (jobsWereLoaded) {
             List<String> visibleJobs = new ArrayList<>();
             for (Entry<String, Job> entry: jobs.entrySet()){
@@ -236,10 +242,14 @@ public class MainApp extends Application {
     }
     
     private void deleteJobsFromAmazonS3() {
-        System.out.println("deleteJobs called!");
         for (String fileName: jobsToBeDeleted) {
             System.out.println("deleting " + fileName);
-            wrapperAmazonS3.deleteFile(fileName);
+            try {
+                wrapperAmazonS3.deleteFile(fileName);
+            } catch (Exception ex){
+                System.out.println("Exception while trying to delete file " + fileName + ":");                
+                System.out.println(ex.toString());
+            }            
         }
         jobsToBeDeleted = new ArrayList<>();
     }
@@ -307,11 +317,11 @@ public class MainApp extends Application {
             credentials = new ProfileCredentialsProvider().getCredentials();
         }
         catch (Exception e){
-            throw new AmazonClientException(
-                    "Cannot load the credentials from the credential profiles file. " +
-                    "Please make sure that your credentials file is at the correct " +
-                    "location (~/.aws/credentials), and is in valid format.",
-                    e);
+            System.err.println("ERROR: Cannot load the credentials from the credential profiles file. \n"
+                    + "Please make sure that your credentials file is at the correct location \n"
+                    + "(Linux: ~/.aws/credentials ; Windows: C:\\User\\<user-name>\\.aws\\credentials),\n"
+                    + "and is in valid format.");
+            System.exit(0);
         }                
         AmazonS3 s3 = new AmazonS3Client(credentials);
         Region region = Region.getRegion(Regions.EU_CENTRAL_1);

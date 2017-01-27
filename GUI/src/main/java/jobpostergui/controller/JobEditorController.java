@@ -14,7 +14,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -93,6 +92,7 @@ public class JobEditorController {
         
         jobTypeComboBox.setItems(FXCollections.observableArrayList("IT", "office"));
         saveJobsButton.setDisable(true);
+        addJobButton.setDisable(true);
                 
         
         statusLabel.textProperty().bindBidirectional(statusString);        
@@ -141,12 +141,13 @@ public class JobEditorController {
     
     @FXML
     private void handleFileNameEdited() {
+        if (mainApp.skipAddingToSaveListSinceDeletionIsHandled) return;
         if (currentlySelectedJob == null) return;
         
         String oldFileName = currentlySelectedJob.getHtmlFileKey();
         String newFileName = fileNameField.getText();
         
-        if(!newFileName.contains(".html")) {            
+        if(!newFileName.contains(".html")) {          
             Alert alert = new Alert(AlertType.WARNING);
             alert.initOwner(mainApp.getPrimaryStage());
             alert.setTitle("Not a html file!");
@@ -205,13 +206,18 @@ public class JobEditorController {
     }
     @FXML
     private void handleDeleteButtonClicked() {
-        fileNameField.setText("");
+        mainApp.skipAddingToSaveListSinceDeletionIsHandled = true;
+        fileNameField.setText("");        
         contentHtmlEditor.setHtmlText("");
         visibleCheckBox.setSelected(false);
-        if (currentlySelectedJob == null) return;
-        
+        if (currentlySelectedJob == null) {
+            mainApp.skipAddingToSaveListSinceDeletionIsHandled = false;
+            return;
+        }
         currentlySelectedJob.setVisible(false);
-        mainApp.deleteFromJobsForTableView(currentlySelectedJob);
+        mainApp.removeFromFilesThatNeedToBeSaved(currentlySelectedJob.getHtmlFileKey());
+        mainApp.deleteFromJobsForTableView(currentlySelectedJob);        
+        mainApp.skipAddingToSaveListSinceDeletionIsHandled = false;
         
         if (mainApp.hasChangesToSave()) {
             saveJobsButton.setDisable(false);
@@ -261,7 +267,8 @@ public class JobEditorController {
                 setStatusMessage(newMessage);
             }
         });
-        new Thread(task).start();        
+        new Thread(task).start();
+        addJobButton.setDisable(false);
     }
     
     @FXML
