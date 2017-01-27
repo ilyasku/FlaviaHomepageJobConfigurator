@@ -21,7 +21,14 @@ dependencies{
     
     testCompile('junit:junit:4.12')
     testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
-    
+}
+
+jar {
+    from {
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
 }
 
 apply plugin: 'javafx-gradle-plugin'

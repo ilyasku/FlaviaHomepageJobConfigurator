@@ -23,13 +23,8 @@ node {
 	}
 
 	stage('Post Build') {
-		sh '''
-			rm -rf JobConfigurator
-			mkdir JobConfigurator
-			cp GUI/build/jfx/app/JobConfiguratorGUI.jar JobConfigurator
-			cp -r GUI/build/jfx/app/lib JobConfigurator
-		'''
-		archiveArtifacts 'JobConfigurator/'
+		sh "cp GUI/build/jfx/app/JobConfiguratorGUI.jar ."
+		archiveArtifacts 'JobConfiguratorGUI.jar'
 	}
 
 }
