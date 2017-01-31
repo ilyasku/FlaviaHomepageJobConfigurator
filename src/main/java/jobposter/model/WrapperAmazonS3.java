@@ -35,7 +35,7 @@ public class WrapperAmazonS3 {
         amazonS3.deleteObject(bucketName, fileName);
     }
     
-    public Job getJob(String htmlFileName) throws IOException {
+    public Job getJob(String htmlFileName) throws IOException {       
         Job job = new Job();
         job.setHtmlFileKey(htmlFileName);
         String htmlContent = getContentOfHtmlFile(htmlFileName);        

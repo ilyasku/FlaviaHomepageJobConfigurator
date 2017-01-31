@@ -44,7 +44,8 @@ import jobpostergui.model.JobForTableView;
 
 public class MainApp extends Application {
 
-    private static final String BUCKET_NAME = "job-poster-gui-test-bucket";
+    private static final String BUCKET_NAME = "www-jobs.flavia-it.de";
+    //private static final String BUCKET_NAME = "job-poster-gui-test-bucket";
     private static final String JOB_JSON_FILE_KEY = "jobs.json";
         
     private Stage primaryStage;
@@ -149,7 +150,7 @@ public class MainApp extends Application {
             job.setVisible(false);
             jobs.put(htmlFileName, job);
         }        
-        
+                
         List<String> visibleJobs = wrapperAmazonS3.getVisibleJobs();
         for (String fileNameOfVisibleJob: visibleJobs) {
             Job jobObject = jobs.get(fileNameOfVisibleJob);
@@ -208,6 +209,9 @@ public class MainApp extends Application {
                     try {
                         System.out.println("saving file " + fileName);
                         wrapperAmazonS3.writeJobToAmazonS3(job);
+                        if (!htmlFileNames.contains(fileName)){
+                            htmlFileNames.add(fileName);
+                        }
                     } catch (IOException ex) {
                         Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
                     }
